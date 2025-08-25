@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Our Relationship Quiz</title>
+<style>
+  :root{
+    --bg:#fff7fb;
+    --bg-accent:#ffeef7;
+    --card:#ffffff;
+    --text:#2b2b2b;
+    --muted:#6b6b6b;
+    --accent:#e66aa0;
+    --accent-2:#9c6ae6;
+    --border:#f3c9db;
+    --shadow: 0 10px 30px rgba(230,106,160,.15);
+  }
+  [data-theme="dark"]{
+    --bg:#17151a;
+    --bg-accent:#201d25;
+    --card:#201d25;
+    --text:#f5f4f6;
+    --muted:#b9b6bd;
+    --accent:#ff7bb5;
+    --accent-2:#b093ff;
+    --border:#3b3242;
+    --shadow: 0 10px 30px rgba(0,0,0,.4);
+  }
+
+  /* soft background sprinkles */
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    color:var(--text);
+    background:
+      radial-gradient(20px 20px at 10% 10%, var(--bg-accent) 20%, transparent 21%) no-repeat,
+      radial-gradient(24px 24px at 85% 25%, var(--bg-accent) 20%, transparent 21%) no-repeat,
+      radial-gradient(18px 18px at 20% 80%, var(--bg-accent) 20%, transparent 21%) no-repeat,
+      var(--bg);
+    min-height:100vh;
+  }
+
+  .wrap{
+    max-width: 900px;
+    margin: 24px auto 80px auto;
+    padding: 0 16px;
+  }
+
+  .hero{
+    background: linear-gradient(135deg, var(--bg-accent), #fff);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 28px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero:before{
+    content:"";
+    position:absolute; inset:-2px;
+    border-radius:16px;
+    padding:2px;
+    background: conic-gradient(from 180deg at 50% 50%, var(--accent), var(--accent-2), var(--accent));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity:.15;
+    pointer-events:none;
+  }
+  h1{
+    margin:0 0 6px 0;
+    font-size: clamp(28px, 3.5vw, 40px);
+    letter-spacing:.5px;
+  }
+  .sub{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin: 18px 0 0 0;
+  }
+  .btn{
+    appearance:none; border:1px solid var(--border); background:#fff;
+    padding:10px 14px; border-radius:10px; cursor:pointer;
+    font-size:14px; transition: all .15s ease; box-shadow: var(--shadow);
+  }
+  [data-theme="dark"] .btn{ background:#2a2630; }
+  .btn.primary{ background: var(--accent); color: #fff; border-color: transparent; }
+  .btn:hover{ transform: translateY(-1px); }
+  .btn:active{ transform: translateY(0); }
+
+  form{ margin-top: 26px; }
+
+  .card{
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius:16px;
+    box-shadow: var(--shadow);
+    padding:22px;
+    margin: 14px 0;
+  }
+  .qhead{
+    display:flex; align-items:center; gap:10px;
+    font-weight:700; font-size:18px;
+    margin-bottom:14px;
+  }
+  .qnum{
+    width:34px; height:34px; border-radius:50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+  }
+  .qlabel{ line-height:1.35; }
+
+  fieldset{ border:none; padding:0; margin:0; }
+  .opt{ display:flex; align-items:flex-start; gap:10px; margin:10px 0; }
+  .opt input{ transform: translateY(2px); }
+  .opt label{ cursor:pointer; }
+
+  input[type="text"], textarea{
+    width:100%;
+    padding:12px 12px;
+    border:2px solid var(--border);
+    border-radius:10px;
+    background: #fff;
+    color:var(--text);
+    font-size:15px;
+    box-sizing:border-box;
+  }
+  [data-theme="dark"] input[type="text"], [data-theme="dark"] textarea{ background:#2a2630; }
+  textarea{ min-height:110px; resize:vertical; }
+
+  .note{
+    font-size:12px; color:var(--muted); margin-top:8px;
+  }
+
+  .footer-space{ height:40px; }
+
+  /* Print */
+  @media print{
+    .toolbar{ display:none !important; }
+    body{ background:#fff; }
+    .hero:before{ display:none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>💕 Our Relationship Quiz</h1>
+      <p class="sub">A tiny museum exhibit you can fill out together. Answers save automatically in your browser.</p>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="printBtn">Print</button>
+        <button class="btn" type="button" id="exportBtn">Export Answers</button>
+        <label class="btn" for="importFile" title="Import answers from a file">Import Answers</label>
+        <input id="importFile" type="file" accept="application/json" hidden />
+        <button class="btn" type="button" id="clearBtn">Clear Answers</button>
+        <button class="btn" type="button" id="themeBtn">Toggle Dark Mode</button>
+      </div>
+    </header>
+
+    <form id="quizForm" autocomplete="off">
+      <!-- Q1 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">1</span><div class="qlabel">Which snack disappears the fastest when we buy it?</div></div>
+        <fieldset>
+          <div class="opt">
+            <input type="radio" id="q1a" name="q1" value="tony's chocolate">
+            <label for="q1a">tony's chocolate</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q1b" name="q1" value="ice cream">
+            <label for="q1b">ice cream</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q1c" name="q1" value="buldok carbonara ramen">
+            <label for="q1c">buldok carbonara ramen</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q1d" name="q1" value="fried">
+            <label for="q1d">fried</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Q2 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">2</span><div class="qlabel">What’s one phrase I say a lot that always makes you roll your eyes?</div></div>
+        <textarea id="q2" name="q2" placeholder="Type here"></textarea>
+      </section>
+
+      <!-- Q3 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">3</span><div class="qlabel">When I’m stressed, my go-to comfort request from you is:</div></div>
+        <fieldset>
+          <div class="opt">
+            <input type="radio" id="q3a" name="q3" value="A hug">
+            <label for="q3a">A hug</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q3b" name="q3" value="Tea">
+            <label for="q3b">Tea</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q3c" name="q3" value="A silly distraction">
+            <label for="q3c">A silly distraction</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q3d" name="q3" value="Silence and space">
+            <label for="q3d">Silence and space</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Q4 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">4</span><div class="qlabel">We once got caught in the rain and just kept walking instead of running for cover.</div></div>
+        <fieldset>
+          <div class="opt">
+            <input type="radio" id="q4t" name="q4" value="True">
+            <label for="q4t">True</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q4f" name="q4" value="False">
+            <label for="q4f">False</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Q5 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">5</span><div class="qlabel">What’s our most “ordinary but perfect” moment?</div></div>
+        <fieldset>
+          <div class="opt">
+            <input type="radio" id="q5a" name="q5" value="Grocery shopping together">
+            <label for="q5a">Grocery shopping together</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q5b" name="q5" value="Lazy Sunday mornings">
+            <label for="q5b">Lazy Sunday mornings</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q5c" name="q5" value="Cooking a meal side by side">
+            <label for="q5c">Cooking a meal side by side</label>
+          </div>
+          <div class="opt">
+            <input type="radio" id="q5d" name="q5" value="Driving at night with music on">
+            <label for="q5d">Driving at night with music on</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Q6 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">6</span><div class="qlabel">One country I’ve said I’d love for us to visit together is:</div></div>
+        <input type="text" id="q6" name="q6" placeholder="Type a country" />
+      </section>
+
+      <!-- Q7 -->
+      <section class="card">
+        <div class="qhead"><span class="qnum">7</span><div class="qlabel">What’s one tradition you’d want us to start in the future?</div></div>
+        <textarea id="q7" name="q7" placeholder="Type here"></textarea>
+        <div class="note">Tip: you can print this page after filling it out, or export answers to a file.</div>
+      </section>
+
+      <div class="footer-space"></div>
+    </form>
+  </div>
+
+<script>
+  const FORM_KEY = "relationshipQuiz.v1";
+  const form = document.getElementById("quizForm");
+  const importFile = document.getElementById("importFile");
+  const themeBtn = document.getElementById("themeBtn");
+
+  function save(){
+    const data = {
+      q1: getRadio("q1"),
+      q2: document.getElementById("q2").value,
+      q3: getRadio("q3"),
+      q4: getRadio("q4"),
+      q5: getRadio("q5"),
+      q6: document.getElementById("q6").value,
+      q7: document.getElementById("q7").value,
+      ts: new Date().toISOString()
+    };
+    localStorage.setItem(FORM_KEY, JSON.stringify(data));
+  }
+  function load(){
+    const raw = localStorage.getItem(FORM_KEY);
+    if(!raw) return;
+    try{
+      const data = JSON.parse(raw);
+      setRadio("q1", data.q1);
+      document.getElementById("q2").value = data.q2 || "";
+      setRadio("q3", data.q3);
+      setRadio("q4", data.q4);
+      setRadio("q5", data.q5);
+      document.getElementById("q6").value = data.q6 || "";
+      document.getElementById("q7").value = data.q7 || "";
+    }catch(e){}
+  }
+  function getRadio(name){
+    const n = document.querySelector(`input[name="${name}"]:checked`);
+    return n ? n.value : "";
+  }
+  function setRadio(name, value){
+    if(!value) return;
+    const n = document.querySelector(`input[name="${name}"][value="${CSS.escape(value)}"]`);
+    if(n) n.checked = true;
+  }
+
+  // autosave on input
+  form.addEventListener("input", save);
+
+  // controls
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if(confirm("Clear all answers from this browser?")){
+      form.reset();
+      localStorage.removeItem(FORM_KEY);
+    }
+  });
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const raw = localStorage.getItem(FORM_KEY) || JSON.stringify({ note:"no answers yet" });
+    const blob = new Blob([raw], {type: "application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "relationship-quiz-answers.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  });
+  importFile.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        localStorage.setItem(FORM_KEY, JSON.stringify(data));
+        load();
+        alert("Answers imported.");
+      }catch(err){
+        alert("Could not import that file. It must be a JSON file exported from this quiz.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // theme
+  themeBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  });
+
+  // initial load
+  load();
+</script>
+</body>
+</html>
